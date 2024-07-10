@@ -1,0 +1,45 @@
+﻿@inject IJSRuntime JSRuntime
+<div style="max-width: 900px; margin: auto; padding: 24px; display: flex; flex-direction: column; gap: 24px;">
+    <IgbGrid Data="_samples" @ref="grid"
+             Id="gridId"
+             PrimaryKey="@nameof(Sample.Id)"
+             AutoGenerate="false"
+             DisplayDensity="DisplayDensity.Cosy"
+             AllowFiltering="true"
+             FilterMode="FilterMode.ExcelStyleFilter">
+        <IgbColumn Field="@nameof(Sample.Id)" Header="ID" DataType="GridColumnDataType.Number" Width="auto"></IgbColumn>
+        @for (int i = 1; i <= 5; i++)
+        {
+            <IgbColumn Field="@nameof(Sample.Item)" Header="@($"Item{i}")"></IgbColumn>
+        }
+    </IgbGrid>
+</div>
+
+@code {
+        IgbGrid? grid;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            grid?.EnsureReady();
+            await JSRuntime.InvokeVoidAsync("setGridHeightToNull", "gridId");
+        }
+    }
+
+    public class Sample
+    {
+        public int Id { get; set; }
+        public string? Item { get; set; }
+    }
+
+    private List<Sample> _samples = new();
+
+    protected override void OnInitialized()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            _samples.Add(new Sample { Id = i + 1, Item = "Item" + (i + 1) });
+        }
+    }
+}
